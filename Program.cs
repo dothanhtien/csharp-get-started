@@ -1,4 +1,6 @@
 using CSharpGetStarted.Data;
+using CSharpGetStarted.Interfaces;
+using CSharpGetStarted.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +12,7 @@ builder.Services.AddDbContext<DataContext>(opt =>
 {
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
