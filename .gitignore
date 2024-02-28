@@ -476,4 +476,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 appsettings.json
-csharp-get-started.db
+csharp-get-started.*
