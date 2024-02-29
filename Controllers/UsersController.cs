@@ -11,34 +11,28 @@ namespace CSharpGetStarted.Controllers
     public class UsersController : BaseApiController
     {
         private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
 
-        public UsersController(IUserRepository userRepository, IMapper mapper)
+        public UsersController(IUserRepository userRepository)
         {
             _userRepository = userRepository;
-            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
         {
-            var users = await _userRepository.GetUsersAsync();
+            var users = await _userRepository.GetMembersAsync();
 
-            var result = _mapper.Map<IEnumerable<MemberDto>>(users);
-
-            return Ok(result);
+            return Ok(users);
         }
 
         [HttpGet("{username}")]
         public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
-            var user = await _userRepository.GetUserByUsernameAsync(username);
+            var user = await _userRepository.GetMemberAsync(username);
 
             if (user == null) return NotFound("User not found");
 
-            var result = _mapper.Map<MemberDto>(user);
-
-            return Ok(result);
+            return Ok(user);
         }
     }
 }

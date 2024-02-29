@@ -1,3 +1,4 @@
+using CSharpGetStarted.DTOs;
 using CSharpGetStarted.Entities;
 
 namespace CSharpGetStarted.Interfaces
@@ -9,5 +10,7 @@ namespace CSharpGetStarted.Interfaces
         Task<IEnumerable<AppUser>> GetUsersAsync();
         Task<AppUser> GetUserByIdAsync(int id);
         Task<AppUser> GetUserByUsernameAsync(string username);
+        Task<IEnumerable<MemberDto>> GetMembersAsync();
+        Task<MemberDto> GetMemberAsync(string username);
     }
 }
