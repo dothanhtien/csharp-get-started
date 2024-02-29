@@ -1,0 +1,7 @@
+```
+"CloudinarySettings": {
+    "CloudName": "",
+    "ApiKey": "",
+    "ApiSecret": ""
+  }
+```
