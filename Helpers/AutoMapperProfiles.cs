@@ -21,6 +21,7 @@ namespace CSharpGetStarted.Helpers
                     opts => opts.MapFrom(src => src.DateOfBirth.CalculateAge())
                 );
             CreateMap<Photo, PhotoDto>();
+            CreateMap<UpdateMemberDto, AppUser>();
         }
     }
 }
