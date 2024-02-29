@@ -1,4 +1,5 @@
 using CSharpGetStarted.Data;
+using CSharpGetStarted.Helpers;
 using CSharpGetStarted.Interfaces;
 using CSharpGetStarted.Services;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,8 @@ namespace CSharpGetStarted.Extensions
                 opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
             });
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
 
             return services;
         }
