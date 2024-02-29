@@ -1,4 +1,5 @@
 using CSharpGetStarted.Data;
+using CSharpGetStarted.Helpers;
 using CSharpGetStarted.Interfaces;
 using CSharpGetStarted.Services;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ namespace CSharpGetStarted.Extensions
             });
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
 
             return services;
         }
