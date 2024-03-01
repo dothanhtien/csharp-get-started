@@ -104,7 +104,7 @@ namespace CSharpGetStarted.Data.Migrations
 
                     b.HasIndex("TargetUserId");
 
-                    b.ToTable("UserLikes");
+                    b.ToTable("Likes");
                 });
 
             modelBuilder.Entity("CSharpGetStarted.Entities.Photo", b =>

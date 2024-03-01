@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CSharpGetStarted.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240301091145_UserLikeAdded")]
-    partial class UserLikeAdded
+    [Migration("20240301100104_UserlikeAdded")]
+    partial class UserlikeAdded
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -107,7 +107,7 @@ namespace CSharpGetStarted.Data.Migrations
 
                     b.HasIndex("TargetUserId");
 
-                    b.ToTable("UserLikes");
+                    b.ToTable("Likes");
                 });
 
             modelBuilder.Entity("CSharpGetStarted.Entities.Photo", b =>

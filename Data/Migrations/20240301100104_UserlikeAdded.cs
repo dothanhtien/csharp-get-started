@@ -5,13 +5,13 @@
 namespace CSharpGetStarted.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class UserLikeAdded : Migration
+    public partial class UserlikeAdded : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "UserLikes",
+                name: "Likes",
                 columns: table => new
                 {
                     SourceUserId = table.Column<int>(type: "INTEGER", nullable: false),
@@ -19,15 +19,15 @@ namespace CSharpGetStarted.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserLikes", x => new { x.SourceUserId, x.TargetUserId });
+                    table.PrimaryKey("PK_Likes", x => new { x.SourceUserId, x.TargetUserId });
                     table.ForeignKey(
-                        name: "FK_UserLikes_Users_SourceUserId",
+                        name: "FK_Likes_Users_SourceUserId",
                         column: x => x.SourceUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserLikes_Users_TargetUserId",
+                        name: "FK_Likes_Users_TargetUserId",
                         column: x => x.TargetUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -35,8 +35,8 @@ namespace CSharpGetStarted.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserLikes_TargetUserId",
-                table: "UserLikes",
+                name: "IX_Likes_TargetUserId",
+                table: "Likes",
                 column: "TargetUserId");
         }
 
@@ -44,7 +44,7 @@ namespace CSharpGetStarted.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "UserLikes");
+                name: "Likes");
         }
     }
 }

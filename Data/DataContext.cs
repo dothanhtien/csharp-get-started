@@ -10,7 +10,7 @@ namespace CSharpGetStarted.Data
         }
 
         public DbSet<AppUser> Users { get; set; }
-        public DbSet<UserLike> UserLikes { get; set; }
+        public DbSet<UserLike> Likes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
