@@ -3,6 +3,7 @@ using CSharpGetStarted.Entities;
 using CSharpGetStarted.Extensions;
 using CSharpGetStarted.Helpers;
 using CSharpGetStarted.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace CSharpGetStarted.Data
 {
@@ -51,9 +52,9 @@ namespace CSharpGetStarted.Data
                 likesParams.PageNumber, likesParams.PageSize);
         }
 
-        public Task<AppUser> GetUserWithLikes(int userId)
+        public async Task<AppUser> GetUserWithLikes(int userId)
         {
-            throw new NotImplementedException();
+            return await _context.Users.Include(x => x.LikedUsers).FirstOrDefaultAsync(x => x.Id == userId);
         }
     }
 }
