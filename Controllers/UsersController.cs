@@ -26,7 +26,7 @@ namespace CSharpGetStarted.Controllers
         [HttpGet]
         public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery]UserParams userParams)
         {
-            var currentUser = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
+            var currentUser = await _userRepository.GetUserByIdAsync(User.GetUserId());
             userParams.CurrentUsername = currentUser.UserName;
 
             if (string.IsNullOrEmpty(userParams.Gender))
@@ -60,9 +60,7 @@ namespace CSharpGetStarted.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateUser(UpdateMemberDto updateMemberDto)
         {
-            var username = User.GetUsername();
-
-            var user = await _userRepository.GetUserByUsernameAsync(username);
+            var user = await _userRepository.GetUserByIdAsync(User.GetUserId());
 
             if (user == null) return NotFound("User not found");
 
@@ -78,7 +76,7 @@ namespace CSharpGetStarted.Controllers
         [HttpPost("add-photo")]
         public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
         {
-            var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
+            var user = await _userRepository.GetUserByIdAsync(User.GetUserId());
 
             if (user == null) return NotFound("User not found");
 
@@ -111,7 +109,7 @@ namespace CSharpGetStarted.Controllers
         [HttpPut("set-main-photo/{photoId}")]
         public async Task<ActionResult> SetMainPhoto(int photoId)
         {
-            var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
+            var user = await _userRepository.GetUserByIdAsync(User.GetUserId());
 
             if (user == null) return NotFound("User not found");
 
@@ -133,7 +131,7 @@ namespace CSharpGetStarted.Controllers
         [HttpDelete("delete-photo/{photoId}")]
         public async Task<ActionResult> DeletePhoto(int photoId)
         {
-            var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
+            var user = await _userRepository.GetUserByIdAsync(User.GetUserId());
 
             if (user == null) return NotFound("User not found");
 
