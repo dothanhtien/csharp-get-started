@@ -3,6 +3,7 @@ using CSharpGetStarted.Data;
 using CSharpGetStarted.Entities;
 using CSharpGetStarted.Extensions;
 using CSharpGetStarted.Middlewares;
+using CSharpGetStarted.SignalR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,12 +23,18 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
+app.UseCors(builder => 
+{
+    builder.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins();
+});
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<PresenceHub>("hubs/presence");
 
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
