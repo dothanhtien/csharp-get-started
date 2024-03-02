@@ -33,6 +33,7 @@ namespace CSharpGetStarted.Helpers
                     d => d.RecipientPhotoUrl, 
                     o => o.MapFrom(s => s.Recipient.Photos.FirstOrDefault(x => x.IsMain).Url)
                 );
+            CreateMap<RegisterDto, AppUser>();
         }
     }
 }

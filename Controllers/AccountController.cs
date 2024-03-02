@@ -34,13 +34,17 @@ namespace CSharpGetStarted.Controllers
 
             if (!result.Succeeded) return BadRequest(result.Errors);
 
+            var roleResult = await _userManager.AddToRoleAsync(user, "Member");
+
+            if (!roleResult.Succeeded) return BadRequest(result.Errors);
+
             return Ok
             (
                 new UserDto
                 {
                     Id = user.Id,
                     UserName = user.UserName,
-                    Token = _tokenService.CreateToken(user)
+                    Token = await _tokenService.CreateToken(user)
                 }
             );
         }
@@ -63,7 +67,7 @@ namespace CSharpGetStarted.Controllers
                 {
                     Id = user.Id,
                     UserName = user.UserName,
-                    Token = _tokenService.CreateToken(user)
+                    Token = await _tokenService.CreateToken(user)
                 }
             );
         }
