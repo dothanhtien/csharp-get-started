@@ -20,11 +20,7 @@ namespace CSharpGetStarted.Data
 
             foreach (var user in users)
             {
-                using var hmac = new HMACSHA512();
-
                 user.UserName = user.UserName.Trim().ToLower();
-                user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Pa$$w0rd"));
-                user.PasswordSalt = hmac.Key;
 
                 context.Users.Add(user);
             }
