@@ -1,4 +1,4 @@
-# Get started with C# - ASP.NET Core
+# Get Started With C# - ASP.NET Core
 
 ### Tools / Frameworks
 #### .NET 7.0.9
@@ -20,12 +20,12 @@
 - Watch:
 `dotnet watch`
 
-### Specify the following details in `appsetting.json` to use Cloudinary for Image functionality:
+### Specify the following details in `appsetting.json` to use Image functionality with Cloudinary:
 ```
 "CloudinarySettings": {
-"CloudName": "",
-"ApiKey": "",
-"ApiSecret": ""
+  "CloudName": "",
+  "ApiKey": "",
+  "ApiSecret": ""
 }
 ```
 
