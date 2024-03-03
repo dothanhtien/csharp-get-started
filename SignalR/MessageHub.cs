@@ -3,6 +3,7 @@ using CSharpGetStarted.DTOs;
 using CSharpGetStarted.Entities;
 using CSharpGetStarted.Extensions;
 using CSharpGetStarted.Interfaces;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.SignalR;
 
 namespace CSharpGetStarted.SignalR
@@ -11,11 +12,13 @@ namespace CSharpGetStarted.SignalR
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
+        private IHubContext<PresenceHub> _presenceHub;
 
-        public MessageHub(IUnitOfWork uow, IMapper mapper)
+        public MessageHub(IUnitOfWork uow, IMapper mapper, IHubContext<PresenceHub> presenceHub)
         {
             _uow = uow;
             _mapper = mapper;
+            _presenceHub = presenceHub;
         }
 
         public override async Task OnConnectedAsync()
@@ -24,15 +27,18 @@ namespace CSharpGetStarted.SignalR
             var otherUser = httpContext.Request.Query["user"];
             var groupName = GetGroupName(Context.User.GetUsername(), otherUser);
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-            await AddToGroup(groupName);
+            var group = await AddToGroup(groupName);
+
+            await Clients.Group(groupName).SendAsync("UpdatedGroup", group);
 
             var messages = await _uow.MessageRepository.GetMessageThread(Context.User.GetUsername(), otherUser);
-            await Clients.Group(groupName).SendAsync("ReceivedMessageThread", messages);
+            await Clients.Caller.SendAsync("ReceivedMessageThread", messages);
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            await RemoveFromMessageGroup();
+            var group = await RemoveFromMessageGroup();
+            await Clients.Group(group.Name).SendAsync("UpdatedGroup", group);
             await base.OnDisconnectedAsync(exception);
         }
 
@@ -64,6 +70,21 @@ namespace CSharpGetStarted.SignalR
             {
                 message.DateRead = DateTime.UtcNow;
             }
+            else
+            {
+                var connections = await PresenceTracker.GetConnectionsForUser(recipient.UserName);
+                if (connections != null)
+                {
+                    await _presenceHub
+                        .Clients
+                        .Clients(connections)
+                        .SendAsync
+                        (
+                            "NewMessageReceived", 
+                            new {username = sender.UserName, knownAs = sender.KnownAs}
+                        );
+                }
+            }
 
             _uow.MessageRepository.AddMessage(message);
 
@@ -81,7 +102,7 @@ namespace CSharpGetStarted.SignalR
             return stringCompare ? $"{caller}-{other}" : $"{other}-{caller}";
         }
 
-        private async Task<bool> AddToGroup(string groupName)
+        private async Task<Group> AddToGroup(string groupName)
         {
             var group = await _uow.MessageRepository.GetMessageGroup(groupName);
             var connection = new Connection
@@ -97,14 +118,19 @@ namespace CSharpGetStarted.SignalR
 
             group.Connections.Add(connection);
 
-            return await _uow.Complete();
+            if (await _uow.Complete()) return group;
+
+            throw new HubException("An error occurred when adding to group");
         }
 
-        private async Task RemoveFromMessageGroup()
+        private async Task<Group> RemoveFromMessageGroup()
         {
-            var connection = await _uow.MessageRepository.GetConnection(Context.ConnectionId);
+            var group = await _uow.MessageRepository.GetGroupForConnection(Context.ConnectionId);
+            var connection = group.Connections.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             _uow.MessageRepository.RemoveConnection(connection);
-            await _uow.Complete();
+            if (await _uow.Complete()) return group;
+
+            throw new HubException("An error occurred when removing from group");
         }
     }
 }
