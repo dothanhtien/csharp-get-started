@@ -2,6 +2,7 @@ using CSharpGetStarted.Data;
 using CSharpGetStarted.Helpers;
 using CSharpGetStarted.Interfaces;
 using CSharpGetStarted.Services;
+using CSharpGetStarted.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CSharpGetStarted.Extensions
@@ -22,6 +23,8 @@ namespace CSharpGetStarted.Extensions
             services.AddScoped<LogUserActivity>();
             services.AddScoped<ILikeRepository, LikeRepository>();
             services.AddScoped<IMessageRepository, MessageRepository>();
+            services.AddSignalR();
+            services.AddSingleton<PresenceTracker>();
 
             return services;
         }
