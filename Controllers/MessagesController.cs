@@ -10,15 +10,13 @@ namespace CSharpGetStarted.Controllers
 {
     public class MessagesController : BaseApiController
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IMessageRepository _messageRepository;
+        private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
 
 
-        public MessagesController(IUserRepository userRepository, IMessageRepository messageRepository, IMapper mapper)
+        public MessagesController(IUnitOfWork uow, IMapper mapper)
         {
-            _userRepository = userRepository;
-            _messageRepository = messageRepository;
+            _uow = uow;
             _mapper = mapper;
         }
 
@@ -32,8 +30,8 @@ namespace CSharpGetStarted.Controllers
                 return BadRequest("You cannot send message to yourself");
             }
 
-            var sender = await _userRepository.GetUserByUsernameAsync(username);
-            var recipient = await _userRepository.GetUserByUsernameAsync(createMessageDto.RecipientUsername.ToLower());
+            var sender = await _uow.UserRepository.GetUserByUsernameAsync(username);
+            var recipient = await _uow.UserRepository.GetUserByUsernameAsync(createMessageDto.RecipientUsername.ToLower());
 
             if (recipient == null) return NotFound();
 
@@ -46,9 +44,9 @@ namespace CSharpGetStarted.Controllers
                 Content = createMessageDto.Content
             };
 
-            _messageRepository.AddMessage(message);
+            _uow.MessageRepository.AddMessage(message);
 
-            if (await _messageRepository.SaveAllAsync()) return Ok(_mapper.Map<MessageDto>(message));
+            if (await _uow.Complete()) return Ok(_mapper.Map<MessageDto>(message));
 
             return BadRequest("An error occurred when sending message");
         }
@@ -58,7 +56,7 @@ namespace CSharpGetStarted.Controllers
         {
             messageParams.Username = User.GetUsername();
 
-            var messages = await _messageRepository.GetMessagesForUser(messageParams);
+            var messages = await _uow.MessageRepository.GetMessagesForUser(messageParams);
 
             Response.AddPaginationHeader
                 (
@@ -79,7 +77,7 @@ namespace CSharpGetStarted.Controllers
         {
             var currentUsername = User.GetUsername();
 
-            return Ok(await _messageRepository.GetMessageThread(currentUsername, username));
+            return Ok(await _uow.MessageRepository.GetMessageThread(currentUsername, username));
         }
 
         [HttpDelete("{id}")]
@@ -87,7 +85,7 @@ namespace CSharpGetStarted.Controllers
         {
             var username = User.GetUsername();
 
-            var message = await _messageRepository.GetMessage(id);
+            var message = await _uow.MessageRepository.GetMessage(id);
 
             if (message == null) return NotFound();
 
@@ -101,10 +99,10 @@ namespace CSharpGetStarted.Controllers
 
             if (message.SenderDeleted && message.RecipientDeleted)
             {
-                _messageRepository.DeleteMessage(message);
+                _uow.MessageRepository.DeleteMessage(message);
             }
 
-            if (await _messageRepository.SaveAllAsync()) return Ok();
+            if (await _uow.Complete()) return Ok();
 
             return BadRequest("An error occurred when deleting message");
         }

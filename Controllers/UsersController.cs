@@ -12,13 +12,13 @@ namespace CSharpGetStarted.Controllers
     [Authorize]
     public class UsersController : BaseApiController
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
         private readonly IPhotoService _photoService;
 
-        public UsersController(IUserRepository userRepository, IMapper mapper, IPhotoService photoService)
+        public UsersController(IUnitOfWork uow, IMapper mapper, IPhotoService photoService)
         {
-            _userRepository = userRepository;
+            _uow = uow;
             _mapper = mapper;
             _photoService = photoService;
         }
@@ -26,15 +26,15 @@ namespace CSharpGetStarted.Controllers
         [HttpGet]
         public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery]UserParams userParams)
         {
-            var currentUser = await _userRepository.GetUserByIdAsync(User.GetUserId());
-            userParams.CurrentUsername = currentUser.UserName;
+            var gender = await _uow.UserRepository.GetUserGender(User.GetUsername());
+            userParams.CurrentUsername = User.GetUsername();
 
             if (string.IsNullOrEmpty(userParams.Gender))
             {
-                userParams.Gender = currentUser.Gender == "male" ? "female" : "male";
+                userParams.Gender = gender == "male" ? "female" : "male";
             }
 
-            var users = await _userRepository.GetMembersAsync(userParams);
+            var users = await _uow.UserRepository.GetMembersAsync(userParams);
 
             Response.AddPaginationHeader(new PaginationHeader
                 (
@@ -50,7 +50,7 @@ namespace CSharpGetStarted.Controllers
         [HttpGet("{username}")]
         public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
-            var user = await _userRepository.GetMemberAsync(username);
+            var user = await _uow.UserRepository.GetMemberAsync(username);
 
             if (user == null) return NotFound("User not found");
 
@@ -60,15 +60,15 @@ namespace CSharpGetStarted.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateUser(UpdateMemberDto updateMemberDto)
         {
-            var user = await _userRepository.GetUserByIdAsync(User.GetUserId());
+            var user = await _uow.UserRepository.GetUserByIdAsync(User.GetUserId());
 
             if (user == null) return NotFound("User not found");
 
             _mapper.Map(updateMemberDto, user);
 
-            _userRepository.Update(user);
+            _uow.UserRepository.Update(user);
 
-            if (await _userRepository.SaveAllAsync()) return NoContent();
+            if (await _uow.Complete()) return NoContent();
 
             return BadRequest("An error occurred when updating user");
         }
@@ -76,7 +76,7 @@ namespace CSharpGetStarted.Controllers
         [HttpPost("add-photo")]
         public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
         {
-            var user = await _userRepository.GetUserByIdAsync(User.GetUserId());
+            var user = await _uow.UserRepository.GetUserByIdAsync(User.GetUserId());
 
             if (user == null) return NotFound("User not found");
 
@@ -94,7 +94,7 @@ namespace CSharpGetStarted.Controllers
 
             user.Photos.Add(photo);
 
-            if (await _userRepository.SaveAllAsync()) {
+            if (await _uow.Complete()) {
                 return CreatedAtAction
                     (
                         nameof(GetUser), 
@@ -109,7 +109,7 @@ namespace CSharpGetStarted.Controllers
         [HttpPut("set-main-photo/{photoId}")]
         public async Task<ActionResult> SetMainPhoto(int photoId)
         {
-            var user = await _userRepository.GetUserByIdAsync(User.GetUserId());
+            var user = await _uow.UserRepository.GetUserByIdAsync(User.GetUserId());
 
             if (user == null) return NotFound("User not found");
 
@@ -123,7 +123,7 @@ namespace CSharpGetStarted.Controllers
             if (currentMain != null) currentMain.IsMain = false;
             photo.IsMain = true;
 
-            if (await _userRepository.SaveAllAsync()) return NoContent();
+            if (await _uow.Complete()) return NoContent();
 
             return BadRequest("An error occurred when setting main photo");
         }
@@ -131,7 +131,7 @@ namespace CSharpGetStarted.Controllers
         [HttpDelete("delete-photo/{photoId}")]
         public async Task<ActionResult> DeletePhoto(int photoId)
         {
-            var user = await _userRepository.GetUserByIdAsync(User.GetUserId());
+            var user = await _uow.UserRepository.GetUserByIdAsync(User.GetUserId());
 
             if (user == null) return NotFound("User not found");
 
@@ -149,7 +149,7 @@ namespace CSharpGetStarted.Controllers
 
             user.Photos.Remove(photo);
 
-            if (await _userRepository.SaveAllAsync()) return Ok();
+            if (await _uow.Complete()) return Ok();
 
             return BadRequest("An error occurred when deleting photo");
         }
